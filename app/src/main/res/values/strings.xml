@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NotificationSample</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="notification_sample_text">
+        Hey I\'ll fire a notification 10 sec after every time I\'m launched/resumed.
+    </string>
+</resources>
