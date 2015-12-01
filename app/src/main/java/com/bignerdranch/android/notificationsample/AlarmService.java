@@ -14,6 +14,7 @@ import java.util.Calendar;
 public class AlarmService {
     private Context context;
     private PendingIntent mAlarmSender;
+    private AlarmManager am;
 
     public AlarmService(Context context) {
         this.context = context;
@@ -25,18 +26,22 @@ public class AlarmService {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.SECOND, 10);
 
-
         /* set notification time - hard code for now
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 12);
-        calendar.set(Calendar.MINUTE, 00);
+        calendar.set(Calendar.HOUR_OF_DAY, 11);
+        calendar.set(Calendar.MINUTE, 15);
         calendar.set(Calendar.SECOND, 00);
         */
 
         long NotificationTime = calendar.getTimeInMillis();
 
         // Schedule the alarm
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.set(AlarmManager.RTC_WAKEUP, NotificationTime, mAlarmSender);
+    }
+
+    public void stopAlarm(){
+        if (am != null)
+            am.cancel(mAlarmSender);
     }
 }

@@ -2,6 +2,7 @@ package com.bignerdranch.android.notificationsample;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
@@ -11,6 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import java.util.Calendar;
 
@@ -22,13 +26,49 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
+    //member view components
+    private Switch mNotificationSwitch;
+    private TextView mNotificationSwitchLabel;
+
+    //notification related fields
+    SharedPreferences mySharedPreferences;
+    public static final String MyPREFERENCES = "My Preferences";
+    public static final String NotificationPREFERENCE = "Notification";
+    private boolean notificationOn;
+    private AlarmService alarmService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AlarmService alarmService = new AlarmService(MainActivity.this);
-        alarmService.startAlarm();
+        mySharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+        //set initial notification state
+        //will set to true if stored preference is not found
+        alarmService = new AlarmService(MainActivity.this);
+        notificationOn = mySharedPreferences.getBoolean(NotificationPREFERENCE, true);
+        setAlarm(notificationOn);
+
+        mNotificationSwitch = (Switch) findViewById(R.id.notification_switch);
+        mNotificationSwitch.setChecked(notificationOn);
+        mNotificationSwitchLabel = (TextView) findViewById(R.id.notification_switch_label);
+
+        mNotificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //set related views
+                notificationOn = isChecked;
+
+                //update value stored in shared preferences
+                SharedPreferences.Editor editor = mySharedPreferences.edit();
+                editor.putBoolean(NotificationPREFERENCE, notificationOn);
+                editor.apply();
+
+                //update alarm service
+                setAlarm(notificationOn);
+            }
+        });
+
     }
 
     @Override
@@ -48,10 +88,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onResume() {
-        //reset alarm service
-        super.onResume();
-        AlarmService alarmService = new AlarmService(MainActivity.this);
-        alarmService.startAlarm();
+    public void setAlarm(boolean notificationOn){
+        if (notificationOn)
+            alarmService.startAlarm();
+        else
+            alarmService.stopAlarm();
     }
+
 }
